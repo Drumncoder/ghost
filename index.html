@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07171b" />
+  <title>Caraguá Ghostship — Painel de desempenho</title>
+  <meta name="description" content="KPI de desempenho por posição do Caraguá Ghostship: jogos, treinos, produção, eficiência e disciplina." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Ir para o conteúdo</a>
+
+  <header class="topbar">
+    <button class="brand" type="button" data-tab="painel" aria-label="Ir para o painel">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 33.5h30l-3.6 5.8H12.6L9 33.5Z" />
+          <path d="M24 8.5v25" />
+          <path d="M24 12c6.6 0 11 4.6 11 10.6v3.4h-7.4" />
+          <path d="M24 12c-6.6 0-11 4.6-11 10.6v3.4h7.4" />
+          <path d="M18.6 18.2h.01M29.4 18.2h.01" />
+          <path d="M13.5 43c2 1.4 4 1.4 6 0s4-1.4 6 0 4 1.4 6 0 4-1.4 6 0" />
+        </svg>
+        <i></i>
+      </span>
+      <span class="brand-text">
+        <strong>Caraguá Ghostship</strong>
+        <span>Painel de desempenho</span>
+      </span>
+    </button>
+
+    <nav class="tabs" aria-label="Seções do painel">
+      <button type="button" class="tab is-active" data-tab="painel">Painel</button>
+      <button type="button" class="tab" data-tab="atletas">Atletas</button>
+      <button type="button" class="tab" data-tab="sessoes">Sessões</button>
+    </nav>
+
+    <div class="topbar-actions">
+      <div class="menu-wrap">
+        <button type="button" class="btn btn-quiet" id="exportBtn" aria-haspopup="menu" aria-expanded="false">
+          Exportar
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="menu" id="exportMenu" role="menu" hidden>
+          <button type="button" role="menuitem" data-action="export-csv">Baixar planilha CSV</button>
+          <button type="button" role="menuitem" data-action="export-json">Backup completo em JSON</button>
+          <button type="button" role="menuitem" data-action="import-json">Importar backup…</button>
+          <span class="menu-rule" role="separator"></span>
+          <button type="button" role="menuitem" data-action="reset-demo" class="menu-danger">Restaurar dados de exemplo</button>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary" id="newSessionBtn" data-action="new-session">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Registrar sessão
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============ PAINEL ============ -->
+    <section class="view" id="view-painel">
+      <div class="page-head">
+        <div class="page-title">
+          <p class="kicker">Temporada 2027 · Litoral Norte</p>
+          <h1>Desempenho por posição</h1>
+          <p class="lede">Produção em campo, eficiência e evolução nos treinos — cada posição cobrada pelo que realmente importa para ela.</p>
+        </div>
+        <div class="filters" aria-label="Filtros do painel">
+          <div class="segmented" role="group" aria-label="Tipo de sessão">
+            <button type="button" class="is-active" data-filter-type="todos">Tudo</button>
+            <button type="button" data-filter-type="Jogo">Jogos</button>
+            <button type="button" data-filter-type="Treino">Treinos</button>
+          </div>
+          <label class="select-wrap">
+            <span class="sr-only">Unidade</span>
+            <select id="filterUnit">
+              <option value="todas">Todas as unidades</option>
+              <option value="Ataque">Ataque</option>
+              <option value="Defesa">Defesa</option>
+              <option value="Especial">Times especiais</option>
+            </select>
+          </label>
+          <label class="select-wrap">
+            <span class="sr-only">Período</span>
+            <select id="filterPeriod">
+              <option value="all">Temporada completa</option>
+              <option value="30">Últimos 30 dias</option>
+              <option value="60">Últimos 60 dias</option>
+              <option value="90">Últimos 90 dias</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <section class="scoreboard" aria-label="Resumo do desempenho">
+        <div class="score-cell score-lead">
+          <span class="score-label">Índice Ghost</span>
+          <strong class="score-value" id="sumIndex">—</strong>
+          <span class="score-sub" id="sumIndexSub">média ponderada</span>
+        </div>
+        <div class="score-cell">
+          <span class="score-label">Média em jogos</span>
+          <strong class="score-value" id="sumGames">—</strong>
+          <span class="score-sub" id="sumGamesSub">—</span>
+        </div>
+        <div class="score-cell">
+          <span class="score-label">Média em treinos</span>
+          <strong class="score-value" id="sumTraining">—</strong>
+          <span class="score-sub" id="sumTrainingSub">—</span>
+        </div>
+        <div class="score-cell">
+          <span class="score-label">Sessões no filtro</span>
+          <strong class="score-value" id="sumSessions">—</strong>
+          <span class="score-sub" id="sumSessionsSub">—</span>
+        </div>
+        <div class="score-cell">
+          <span class="score-label">Atletas ativos</span>
+          <strong class="score-value" id="sumAthletes">—</strong>
+          <span class="score-sub" id="sumAthletesSub">—</span>
+        </div>
+      </section>
+
+      <div class="grid-main">
+        <section class="panel ranking-panel" aria-labelledby="rankingTitle">
+          <div class="panel-head">
+            <div>
+              <h2 id="rankingTitle">Ranking do elenco</h2>
+              <p class="panel-sub" id="rankingSub">Índice geral com 65% de peso para jogos e 35% para treinos.</p>
+            </div>
+            <label class="search">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span class="sr-only">Buscar atleta</span>
+              <input type="search" id="rankingSearch" placeholder="Buscar atleta" autocomplete="off" />
+            </label>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table ranking-table">
+              <thead>
+                <tr>
+                  <th class="col-rank" scope="col">#</th>
+                  <th scope="col"><button type="button" class="sort-btn" data-sort="name">Atleta</button></th>
+                  <th scope="col"><button type="button" class="sort-btn" data-sort="position">Posição</button></th>
+                  <th class="num" scope="col"><button type="button" class="sort-btn" data-sort="game">Jogos</button></th>
+                  <th class="num" scope="col"><button type="button" class="sort-btn" data-sort="training">Treinos</button></th>
+                  <th class="num" scope="col"><button type="button" class="sort-btn is-sorted" data-sort="index">Índice</button></th>
+                  <th scope="col"><button type="button" class="sort-btn" data-sort="trend">Tendência</button></th>
+                </tr>
+              </thead>
+              <tbody id="rankingBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="rankingEmpty" hidden>
+            <p>Nenhum atleta encontrado com esses filtros.</p>
+            <button type="button" class="btn btn-quiet" data-action="clear-filters">Limpar filtros</button>
+          </div>
+        </section>
+
+        <section class="panel positions-panel" aria-labelledby="positionsTitle">
+          <div class="panel-head">
+            <div>
+              <h2 id="positionsTitle">Por posição</h2>
+              <p class="panel-sub">Média do índice, separada entre jogo e treino.</p>
+            </div>
+            <div class="legend" aria-hidden="true">
+              <span><i class="dot dot-game"></i>Jogo</span>
+              <span><i class="dot dot-training"></i>Treino</span>
+            </div>
+          </div>
+          <div class="position-chart" id="positionChart"></div>
+        </section>
+      </div>
+
+      <div class="grid-secondary">
+        <section class="panel recent-panel" aria-labelledby="recentTitle">
+          <div class="panel-head">
+            <div>
+              <h2 id="recentTitle">Últimas sessões</h2>
+              <p class="panel-sub">O que entrou no radar mais recentemente.</p>
+            </div>
+            <button type="button" class="link-btn" data-tab="sessoes">Ver todas</button>
+          </div>
+          <div class="recent-list" id="recentList"></div>
+        </section>
+
+        <section class="panel method-panel" aria-labelledby="methodTitle">
+          <div class="panel-head">
+            <div>
+              <h2 id="methodTitle">Como o índice é calculado</h2>
+              <p class="panel-sub">Transparência para comparar posições diferentes.</p>
+            </div>
+          </div>
+          <div class="method-body">
+            <p>O <strong>Índice Ghost</strong> combina quatro pilares. A produção usa uma referência própria para cada posição; em treinos, a referência cai 38% porque o volume de repetições é menor.</p>
+            <div class="pillar-key">
+              <span><i style="--w:40%"></i><em>Produção</em><b>40%</b></span>
+              <span><i style="--w:20%"></i><em>Eficiência</em><b>20%</b></span>
+              <span><i style="--w:20%"></i><em>Avaliação técnica</em><b>20%</b></span>
+              <span><i style="--w:20%"></i><em>Disciplina</em><b>20%</b></span>
+            </div>
+            <details class="method-details">
+              <summary>Referências de produção por posição</summary>
+              <div class="table-wrap">
+                <table class="data-table compact-table" id="benchmarkTable">
+                  <thead><tr><th scope="col">Posição</th><th scope="col">O que soma</th><th class="num" scope="col">Referência</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <p class="fine-print">O índice geral do atleta usa 65% da média em jogos e 35% da média em treinos, quando existem os dois. Eficiência não se aplica quando não há volume suficiente (ex.: nenhum passe tentado).</p>
+            </details>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ ATLETAS ============ -->
+    <section class="view" id="view-atletas" hidden>
+      <div class="page-head">
+        <div class="page-title">
+          <p class="kicker">Elenco</p>
+          <h1>Atletas</h1>
+          <p class="lede">Cada atleta carrega a posição e o histórico de sessões. Mudanças de posição não reescrevem o passado.</p>
+        </div>
+        <div class="head-actions">
+          <button type="button" class="btn btn-primary" data-action="new-athlete">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Novo atleta
+          </button>
+        </div>
+      </div>
+      <div class="roster-meta" id="rosterMeta"></div>
+      <div class="roster-grid" id="rosterGrid"></div>
+      <div class="empty" id="rosterEmpty" hidden>
+        <p>O elenco ainda está vazio.</p>
+        <button type="button" class="btn btn-primary" data-action="new-athlete">Cadastrar primeiro atleta</button>
+      </div>
+    </section>
+
+    <!-- ============ SESSÕES ============ -->
+    <section class="view" id="view-sessoes" hidden>
+      <div class="page-head">
+        <div class="page-title">
+          <p class="kicker">Registro</p>
+          <h1>Sessões</h1>
+          <p class="lede">Todo jogo e todo treino com estatísticas, avaliação da comissão técnica e índice calculado.</p>
+        </div>
+        <div class="head-actions">
+          <button type="button" class="btn btn-primary" data-action="new-session">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Registrar sessão
+          </button>
+        </div>
+      </div>
+
+      <section class="panel sessions-panel">
+        <div class="sessions-toolbar">
+          <label class="select-wrap">
+            <span class="sr-only">Tipo</span>
+            <select id="sessionType">
+              <option value="todos">Todos os tipos</option>
+              <option value="Jogo">Jogos</option>
+              <option value="Treino">Treinos</option>
+            </select>
+          </label>
+          <label class="select-wrap">
+            <span class="sr-only">Unidade</span>
+            <select id="sessionUnit">
+              <option value="todas">Todas as unidades</option>
+              <option value="Ataque">Ataque</option>
+              <option value="Defesa">Defesa</option>
+              <option value="Especial">Times especiais</option>
+            </select>
+          </label>
+          <label class="search search-wide">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="sr-only">Buscar sessão</span>
+            <input type="search" id="sessionSearch" placeholder="Buscar atleta ou contexto" autocomplete="off" />
+          </label>
+          <span class="toolbar-count" id="sessionCount"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table sessions-table">
+            <thead>
+              <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Atleta</th>
+                <th scope="col">Posição</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Contexto</th>
+                <th class="num" scope="col">Duração</th>
+                <th class="num" scope="col">Índice</th>
+                <th class="col-actions" scope="col"><span class="sr-only">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody id="sessionsBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="sessionsEmpty" hidden>
+          <p>Nenhuma sessão encontrada.</p>
+          <button type="button" class="btn btn-primary" data-action="new-session">Registrar sessão</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Dados salvos apenas neste navegador. Exporte um backup com regularidade.</p>
+    <p>Caraguá Ghostship · uso interno da comissão técnica</p>
+  </footer>
+
+  <div class="drawer-layer" id="drawerLayer" hidden>
+    <button type="button" class="scrim" data-action="close-drawer" aria-label="Fechar detalhes do atleta"></button>
+    <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" tabindex="-1"></aside>
+  </div>
+
+  <div class="modal-layer" id="modalLayer" hidden>
+    <button type="button" class="scrim" data-action="close-modal" aria-label="Fechar formulário"></button>
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"></div>
+  </div>
+
+  <input type="file" id="importInput" accept="application/json,.json" hidden />
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
